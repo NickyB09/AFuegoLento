@@ -1,0 +1,16 @@
+{
+  "name": "afuegolento",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:frontend": "npm --workspace frontend run start",
+    "dev:backend": "npm --workspace backend run dev",
+    "dev:web": "npm --workspace frontend run web",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down -v"
+  }
+}
