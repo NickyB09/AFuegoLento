@@ -2,21 +2,25 @@ import crypto from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { pool } from './pool.js';
+
 import { env } from '../config/env.js';
 import { hashPassword } from '../utils/password.js';
+import { pool } from './pool.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const schemaPath = path.resolve(__dirname, '../../sql/001_init.sql');
 
+// Ejecuta el esquema SQL idempotente del proyecto.
 async function runSchema() {
   const sql = await fs.readFile(schemaPath, 'utf8');
   await pool.query(sql);
 }
 
+// Inserta datos base para que el MVP pueda usarse apenas arranca.
 async function seedData() {
   const client = await pool.connect();
+
   try {
     await client.query('BEGIN');
 
@@ -76,8 +80,30 @@ async function seedData() {
       `);
     }
 
+    const inventoryCount = await client.query('SELECT COUNT(*)::int AS count FROM inventory_items');
+    if (inventoryCount.rows[0].count === 0) {
+      await client.query(`
+        INSERT INTO inventory_items (
+          id, name, description, sku, unit, current_stock,
+          minimum_stock, cost_per_unit, supplier_name, is_active
+        ) VALUES
+          ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', 'Mantequilla clarificada', 'Base para salsas y terminaciones.', 'INS-GHEE-001', 'litros', 8, 3, 11.50, 'Lácteos Andinos', TRUE),
+          ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2', 'Cordero importado', 'Corte principal para fondos.', 'INS-LAMB-001', 'kilogramos', 18, 10, 24.00, 'Carnes de Autor', TRUE),
+          ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa3', 'Cacao origen Tumaco', 'Usado en postres y ganaches.', 'INS-COCOA-001', 'kilogramos', 6, 4, 15.75, 'Casa Cacao', TRUE)
+      `);
+
+      await client.query(`
+        INSERT INTO inventory_movements (id, item_id, movement_type, quantity, note, performed_by_user_id)
+        VALUES
+          ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', 'in', 8, 'Stock inicial del sistema', NULL),
+          ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb2', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2', 'in', 18, 'Stock inicial del sistema', NULL),
+          ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb3', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa3', 'in', 6, 'Stock inicial del sistema', NULL)
+      `);
+    }
+
     if (env.adminEmail && env.adminPassword && env.adminName) {
       const existingAdmin = await client.query('SELECT id FROM users WHERE email = $1 LIMIT 1', [env.adminEmail.toLowerCase()]);
+
       if (existingAdmin.rowCount === 0) {
         const passwordHash = await hashPassword(env.adminPassword);
         await client.query(
@@ -97,6 +123,7 @@ async function seedData() {
   }
 }
 
+// Punto único de inicialización de base de datos al arrancar la API.
 export async function initDb() {
   await runSchema();
   await seedData();

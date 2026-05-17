@@ -1,5 +1,7 @@
 import { ZodError } from 'zod';
 
+// Este middleware centraliza la respuesta de errores inesperados,
+// validaciones y errores de negocio con código HTTP controlado.
 export function errorHandler(err, req, res, next) {
   console.error(err);
 

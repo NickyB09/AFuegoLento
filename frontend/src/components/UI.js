@@ -43,7 +43,7 @@ export function Button({ title, onPress, variant = 'primary', disabled = false }
   };
   const textVariants = {
     primary: 'text-brand-ivory',
-    secondary: 'text-brand-charcoal',
+    secondary: 'text-brand-ivory',
     dark: 'text-brand-ivory',
     danger: 'text-brand-ivory',
   };

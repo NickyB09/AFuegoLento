@@ -1,5 +1,6 @@
 import { pool } from '../../../db/pool.js';
 
+// Repositorio de datos simples del perfil autenticado.
 export const usersRepository = {
   async updateProfile(userId, { name, phone }) {
     const result = await pool.query(

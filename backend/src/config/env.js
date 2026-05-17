@@ -1,5 +1,7 @@
 import 'dotenv/config';
 
+// Estas variables son obligatorias para que la API pueda iniciar
+// con autenticación y base de datos configuradas correctamente.
 const requiredEnv = [
   'PORT',
   'DATABASE_URL',
@@ -15,6 +17,8 @@ for (const key of requiredEnv) {
   }
 }
 
+// Se centraliza la lectura del entorno para evitar acceder a process.env
+// desde muchos lugares y así mantener una configuración consistente.
 export const env = {
   port: Number(process.env.PORT) || 4000,
   nodeEnv: process.env.NODE_ENV || 'development',

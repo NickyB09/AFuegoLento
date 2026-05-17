@@ -1,5 +1,6 @@
 import { pool } from '../../../db/pool.js';
 
+// Repositorio para lectura pública y administración del menú.
 export const menuRepository = {
   async listCategories() {
     const result = await pool.query('SELECT * FROM menu_categories ORDER BY sort_order ASC, name ASC');
@@ -61,7 +62,8 @@ export const menuRepository = {
   },
 
   async deleteCategory(id) {
-    await pool.query('DELETE FROM menu_categories WHERE id = $1', [id]);
+    const result = await pool.query('DELETE FROM menu_categories WHERE id = $1 RETURNING id', [id]);
+    return result.rows[0] || null;
   },
 
   async createExperience({ id, name, description, price, isActive }) {
@@ -86,7 +88,8 @@ export const menuRepository = {
   },
 
   async deleteExperience(id) {
-    await pool.query('DELETE FROM dining_experiences WHERE id = $1', [id]);
+    const result = await pool.query('DELETE FROM dining_experiences WHERE id = $1 RETURNING id', [id]);
+    return result.rows[0] || null;
   },
 
   async createItem({ id, categoryId, experienceId, name, description, price, imageUrl, isAvailable }) {
@@ -111,6 +114,7 @@ export const menuRepository = {
   },
 
   async deleteItem(id) {
-    await pool.query('DELETE FROM menu_items WHERE id = $1', [id]);
+    const result = await pool.query('DELETE FROM menu_items WHERE id = $1 RETURNING id', [id]);
+    return result.rows[0] || null;
   },
 };

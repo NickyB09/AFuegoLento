@@ -39,6 +39,8 @@ export const api = {
   updateMe: (token, payload) => apiFetch('/users/me', { method: 'PATCH', token, body: JSON.stringify(payload) }),
 
   createReservation: (token, payload) => apiFetch('/reservations', { method: 'POST', token, body: JSON.stringify(payload) }),
+  updateReservation: (token, id, payload) => apiFetch(`/reservations/${id}`, { method: 'PATCH', token, body: JSON.stringify(payload) }),
+  updateReservationStatus: (token, id, payload) => apiFetch(`/reservations/${id}/status`, { method: 'PATCH', token, body: JSON.stringify(payload) }),
   myReservations: (token) => apiFetch('/reservations/mine', { token }),
   cancelReservation: (token, id) => apiFetch(`/reservations/${id}/cancel`, { method: 'PATCH', token }),
   adminReservations: (token) => apiFetch('/reservations/admin', { token }),

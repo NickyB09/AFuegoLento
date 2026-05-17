@@ -1,284 +1,234 @@
 # AFuegoLento
 
-![Expo](https://img.shields.io/badge/Expo-54-000020?style=for-the-badge&logo=expo&logoColor=white)
-![React Native Web](https://img.shields.io/badge/React_Native_Web-0.21-61DAFB?style=for-the-badge&logo=react&logoColor=white)
-![Express](https://img.shields.io/badge/Express-5.2-000000?style=for-the-badge&logo=express&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+AFuegoLento es un monorepo full-stack para un restaurante gourmet con enfoque editorial. Hoy el proyecto queda con un **backend funcional**, un **frontend web responsive ya rediseñado en sus pantallas clave**, y una base clara para seguir con las vistas restantes sin rehacer la lógica de negocio.
 
-> Plataforma web para restaurante gourmet con enfoque en reservas, experiencia editorial y gestión básica de menú.
-> AFuegoLento ya está montado como **MVP full-stack funcional** con frontend web, backend API y base de datos relacional.
+## Quick path
 
----
+1. Copia variables de entorno:
+   ```bash
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
+   ```
+2. Levanta el proyecto:
+   ```bash
+   docker compose up --build
+   ```
+3. Verifica backend:
+   ```bash
+   npm --workspace backend run smoke
+   ```
+4. Abre:
+   - Frontend web: `http://localhost:8081`
+   - API health: `http://localhost:4000/api/health`
 
 ## Estado actual
 
-### Ya implementado
-- Landing/Home inicial
-- Menú dinámico conectado a base de datos
-- Flujo de reservas con fecha, hora, comensales, tipo de mesa y notas
-- Registro, login, refresh token, logout y recuperación/restablecimiento de contraseña
-- Vista de cuenta del usuario y listado de reservas propias
-- Sección de contacto/ubicación
-- Panel admin básico para gestionar menú y revisar reservas
-- Backend con Express, JWT y PostgreSQL
-- Arranque local completo con Docker Compose
+### Backend listo
+- Registro, login, refresh token, logout y recuperación de contraseña
+- Perfil del usuario autenticado
+- Menú público y CRUD admin de categorías, platos y experiencias
+- Reservas con validaciones reales de fecha, horario, capacidad y disponibilidad
+- Edición y cancelación de reservas
+- Estados de reserva: `pending`, `confirmed`, `finalized`, `cancelled`
+- Tipos de mesa y mesas físicas
+- Inventario con movimientos de stock e indicador de low stock
+- PostgreSQL inicializado con esquema idempotente y datos semilla
+- Smoke test para validar flujos principales
+- Código backend comentado para facilitar mantenimiento
 
-### Pendiente / siguiente foco
-- Rediseño visual de la landing para volverla más editorial y premium
-- Pulido de responsive, spacing y jerarquía tipográfica en auth
-- Mejoras visuales de Register, Login y Recovery Access
-- Evolución del panel admin y validaciones más finas para producción
+### Frontend listo hoy
+- Home editorial responsive
+- Drawer hamburguesa funcional
+- CTA de reserva con control de autenticación
+- Login y register rehechos con layout fullscreen y fondo cinematográfico
+- Recovery/reset integrado en el flujo de auth
+- Página de reservas conectada al backend
+- Confirmación de reserva
+- Mis reservas con acciones para editar y cancelar
+- Ajustes de contraste, tipografía y CTA según referencias visuales
 
----
+### Pendiente para próximas sesiones
+- Seguir afinando pixel-perfect del frontend
+- Completar vistas adicionales del menú/contacto/admin si se quiere un cierre visual más completo
+- Integrar social login solo si se decide implementar OAuth real
 
-## Arquitectura
+## Qué implementamos hoy
 
-AFuegoLento está organizado como un **monorepo full-stack** con frontend y backend desacoplados:
+## Frontend
+- Se rehízo la landing/home con una estética más editorial y más cercana a las referencias del usuario.
+- Se corrigió el menú para funcionar como drawer hamburguesa en vez de panel mal posicionado.
+- Se volvió responsive el home, auth y las pantallas clave del flujo de reservas.
+- Se rehicieron login y register con fondos fullscreen, mejor contraste y estructura más cercana a los mockups.
+- Se eliminó el navbar superior en auth y se dejó acceso por hamburguesa.
+- Se corrigieron botones, bordes y contrastes del hero, incluyendo `Ver menú`.
+- Se ajustó el color de textos descriptivos del home para mantener una jerarquía visual consistente.
 
-```text
-AFuegoLento/
-├── frontend/          # Expo + React Native Web
-├── backend/           # Express + PostgreSQL + JWT
-├── docker-compose.yml # Orquestación local
-└── package.json       # Workspaces y scripts raíz
-```
+## Backend
+- Se cerraron dominios faltantes: mesas e inventario.
+- Se endureció el flujo de reservas con validaciones reales de negocio.
+- Se añadió soporte para editar reservas sin bloquear la mesa por su propia ocupación.
+- Se añadieron estados y acciones completas de reserva para usuario/admin.
 
-### Backend modular
-
-```text
-backend/src
-├── config/
-├── db/
-├── middlewares/
-├── modules/
-│   ├── account/
-│   ├── auth/
-│   ├── menu/
-│   ├── reservations/
-│   ├── tables/
-│   └── users/
-├── routes/
-└── utils/
-```
-
-### Frontend por features
-
-```text
-frontend/src
-├── components/
-├── constants/
-├── features/
-│   ├── account/
-│   ├── app/
-│   ├── auth/
-│   ├── home/
-│   ├── menu/
-│   └── reservations/
-├── services/
-└── utils/
-```
-
-### Principios aplicados
-- Monorepo simple para iterar rápido
-- Separación frontend/backend con contratos HTTP claros
-- Backend modular por dominio
-- SQL directo con `pg` sin ORM
-- Configuración por variables de entorno
-- Experiencia centrada en conversión a reserva
-
----
+## Documentación
+- Se actualizó el README para reflejar el estado real del proyecto.
+- Se mantuvo `docs/backend-api.md` como referencia principal de la API.
+- Se añadió un resumen de continuidad de esta sesión en `docs/session-2026-05-16.md`.
 
 ## Stack
 
 | Área | Tecnología |
 |---|---|
-| Frontend | Expo 54 + React Native Web + NativeWind/Tailwind |
+| Frontend | Expo 54 + React Native Web |
 | Backend | Node.js + Express 5 |
-| Auth | JWT + refresh tokens |
-| Base de datos | PostgreSQL |
-| Acceso a datos | `pg` + SQL directo |
+| Base de datos | PostgreSQL 16 |
+| Auth | JWT access + refresh tokens persistidos |
 | Infra local | Docker Compose |
-| Estilo UI | enfoque gourmet/editorial |
+| Estilo | Monorepo modular por dominios |
 
----
+## Estructura
 
-## Setup local
-
-### Requisitos
-- Node.js 20+
-- npm 10+
-- Docker Desktop o Docker Engine
-
-### 1. Configurar variables de entorno
-
-```bash
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
+```text
+AFuegoLento/
+├── backend/
+│   ├── scripts/
+│   ├── sql/
+│   └── src/
+│       ├── config/
+│       ├── db/
+│       ├── middlewares/
+│       ├── modules/
+│       │   ├── auth/
+│       │   ├── inventory/
+│       │   ├── menu/
+│       │   ├── reservations/
+│       │   ├── tables/
+│       │   └── users/
+│       ├── routes/
+│       └── utils/
+├── frontend/
+├── docs/
+├── docker-compose.yml
+└── package.json
 ```
 
-> Configura secretos reales antes de cualquier despliegue. No se deben versionar credenciales.
+## Backend por dominios
 
-### 2. Levantar todo con Docker
-
-```bash
-docker compose up --build
-```
-
-Servicios disponibles:
-- Frontend web: `http://localhost:8081`
-- Backend API health: `http://localhost:4000/api/health`
-- PostgreSQL: `localhost:5432`
-
-### 3. Admin inicial opcional
-
-Si defines estas variables en `backend/.env`, el backend crea automáticamente un admin si todavía no existe:
-
-- `ADMIN_NAME`
-- `ADMIN_EMAIL`
-- `ADMIN_PASSWORD`
-
----
-
-## Desarrollo sin Docker
-
-### Backend
-
-```bash
-cd backend
-npm install
-npm run dev
-```
-
-### Frontend web
-
-```bash
-cd frontend
-npm install
-npm run web
-```
-
-### Desde la raíz
-
-```bash
-npm run dev:backend
-npm run dev:web
-```
-
----
+| Dominio | Qué resuelve | Rutas base |
+|---|---|---|
+| Auth | Sesión, refresh y recuperación de contraseña | `/api/auth/*` |
+| Users | Perfil autenticado | `/api/users/*` |
+| Menu | Menú público y CRUD admin | `/api/menu/*` |
+| Reservations | Reservas del cliente y supervisión admin | `/api/reservations/*` |
+| Tables | Tipos de mesa y mesas físicas | `/api/tables/*` |
+| Inventory | Insumos y movimientos de stock | `/api/inventory/*` |
+| Content | Datos base de marca/contacto para frontend | `/api/content` |
 
 ## Variables de entorno
 
 ### Backend
 
-| Variable | Propósito |
+| Variable | Uso |
 |---|---|
-| `PORT` | puerto del backend |
-| `DATABASE_URL` o variables DB equivalentes | conexión a PostgreSQL |
-| `JWT_SECRET` | secreto para firmar access tokens |
-| `JWT_REFRESH_SECRET` | secreto para refresh tokens |
-| `ADMIN_NAME` | nombre del admin semilla |
-| `ADMIN_EMAIL` | email del admin semilla |
-| `ADMIN_PASSWORD` | password del admin semilla |
+| `PORT` | Puerto HTTP del backend |
+| `NODE_ENV` | Entorno de ejecución |
+| `CLIENT_URL` | Origen permitido por CORS |
+| `DATABASE_URL` | Conexión a PostgreSQL |
+| `JWT_ACCESS_SECRET` | Firma del access token |
+| `JWT_REFRESH_SECRET` | Firma del refresh token |
+| `JWT_ACCESS_EXPIRES_IN` | Vida del access token |
+| `JWT_REFRESH_EXPIRES_IN` | Vida del refresh token |
+| `ADMIN_NAME` | Nombre del admin semilla |
+| `ADMIN_EMAIL` | Correo del admin semilla |
+| `ADMIN_PASSWORD` | Password del admin semilla |
 
 ### Frontend
 
-Usa `frontend/.env.example` como base para la URL del backend y ajustes locales de ejecución.
+Usa `frontend/.env.example` para declarar la URL pública del backend. No hardcodees secretos ni endpoints de producción en componentes.
 
----
+## Flujos principales
 
-## Qué incluye este MVP
+### Auth
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/refresh`
+- `POST /api/auth/logout`
+- `POST /api/auth/forgot-password`
+- `POST /api/auth/reset-password`
+- `GET /api/auth/me`
 
-### Experiencia pública
-- Home / landing inicial
-- Menú navegable con contenido dinámico
-- Formulario de reservas
-- Contacto y ubicación
+### Reservas
+- `GET /api/reservations/table-types`
+- `POST /api/reservations`
+- `PATCH /api/reservations/:id`
+- `GET /api/reservations/mine`
+- `GET /api/reservations/admin`
+- `PATCH /api/reservations/:id/status`
+- `PATCH /api/reservations/:id/cancel`
 
-### Experiencia de usuario
-- Registro
-- Inicio de sesión
-- Recuperación de acceso
-- Restablecimiento de contraseña
-- Mi cuenta
-- Mis reservas
+### Inventario
+- `GET /api/inventory`
+- `GET /api/inventory/:id/movements`
+- `POST /api/inventory`
+- `PATCH /api/inventory/:id`
+- `POST /api/inventory/:id/movements`
+- `DELETE /api/inventory/:id`
 
-### Experiencia admin básica
-- Gestión de menú
-- Visualización de reservas
+Más detalle en `docs/backend-api.md`.
 
----
+## Desarrollo
 
-## Endpoints / dominios principales
-
-- `/api/auth/*` — autenticación y recuperación de acceso
-- `/api/menu/*` — menú público y edición admin
-- `/api/reservations/*` — creación y consulta de reservas
-- `/api/account/*` — datos del usuario autenticado
-- `/api/tables/*` — soporte de mesas/tipos de mesa
-- `/api/users/*` — utilidades de usuarios/admin
-
-> Los prefijos exactos pueden depender del router principal del backend, pero estos son los dominios funcionales ya implementados.
-
----
-
-## Decisiones importantes
-
-### 1. Monorepo por practicidad
-Se eligió mantener frontend y backend en el mismo repositorio para acelerar iteración, onboarding y despliegue local.
-
-### 2. SQL directo en vez de ORM
-La capa de datos usa `pg` y SQL explícito para mantener simple la curva de aprendizaje y el control del esquema.
-
-### 3. Docker como forma principal de arranque
-El proyecto se dejó listo para levantar el stack completo local sin instalar PostgreSQL aparte.
-
-### 4. Prioridad de producto: reservas
-Toda la experiencia está pensada para que la reserva sea la conversión principal del sitio.
-
-### 5. Dirección visual gourmet/editorial
-El frontend no se plantea como dashboard frío, sino como experiencia premium y sensorial inspirada en restaurante fine dining.
-
----
-
-## Notas de desarrollo
-
-- El backend inicializa esquema y datos semilla automáticamente.
-- La recuperación de contraseña devuelve token en la respuesta solo en entorno de desarrollo.
-- Las reservas manejan una versión inicial de estados simples como `confirmed` y `cancelled`.
-- En Docker para Expo Web se usa `--localhost` para evitar problemas de acceso desde navegador local.
-
----
-
-## Comandos útiles
+### Con Docker
 
 ```bash
-# levantar todo con rebuild
 docker compose up --build
+```
 
-# bajar servicios y volúmenes
-docker compose down -v
+### Sin Docker
 
-# backend en desarrollo
+```bash
+npm install
 npm run dev:backend
-
-# frontend web en desarrollo
 npm run dev:web
 ```
 
----
+### Verificación rápida
 
-## Roadmap inmediato
+```bash
+npm --workspace backend run db:check
+npm --workspace backend run smoke
+```
 
-1. Rediseñar la landing/home con una dirección visual más fuerte
-2. Mejorar responsive global
-3. Pulir pantallas de auth
-4. Aplicar el rediseño al frontend real
-5. Endurecer validaciones y flujos admin para una siguiente versión
+## Datos semilla
 
----
+El backend crea automáticamente:
+- categorías iniciales del menú
+- experiencias gastronómicas
+- platos base
+- tipos de mesa y mesas físicas
+- inventario de ejemplo
+- usuario administrador si `ADMIN_*` está configurado
 
-## Autor
+## Documentación adicional
 
-**Nicolás Andrés Betancur Ardila**  
-Software Engineer en formación con foco en producto, arquitectura y experiencia de usuario.
+- `docs/backend-api.md` — endpoints, payloads y reglas principales de la API
+- `docs/session-2026-05-16.md` — resumen detallado de la sesión actual y continuidad
+
+## Checklist para push a GitHub
+
+Antes de hacer push, revisa esto:
+
+- [ ] `backend/.env` y `frontend/.env` siguen fuera del repo
+- [ ] No hay secretos hardcodeados en código o docs
+- [ ] `docker compose up --build` levanta frontend, backend y db
+- [ ] `npm --workspace backend run smoke` pasa en local
+- [ ] README y docs reflejan el estado real del proyecto
+- [ ] Revisa `git status` y confirma los archivos modificados de hoy
+
+## Sugerencia de flujo para subir
+
+```bash
+git status
+git add .
+git commit -m "feat: polish AFuegoLento backend and responsive frontend"
+git push origin <tu-rama>
+```

@@ -1,10 +1,12 @@
 import { Router } from 'express';
+
 import { authenticate } from '../../../middlewares/authenticate.js';
 import { requireRole } from '../../../middlewares/requireRole.js';
 import { menuController } from '../controllers/menu.controller.js';
 
 const router = Router();
 
+// Rutas públicas del menú y operaciones privadas del panel admin.
 router.get('/', menuController.list);
 router.get('/admin', authenticate, requireRole('admin'), menuController.adminList);
 router.post('/categories', authenticate, requireRole('admin'), menuController.createCategory);

@@ -1,10 +1,13 @@
 import crypto from 'crypto';
+
 import { pool } from '../../../db/pool.js';
 
+// Los tokens sensibles se hashean antes de guardarse para no persistirlos en claro.
 function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
+// Repositorio de autenticación y sesión.
 export const authRepository = {
   async findUserByEmail(email) {
     const result = await pool.query('SELECT * FROM users WHERE email = $1 LIMIT 1', [email.toLowerCase()]);
@@ -12,7 +15,10 @@ export const authRepository = {
   },
 
   async findUserById(id) {
-    const result = await pool.query('SELECT id, name, email, phone, role, created_at, updated_at FROM users WHERE id = $1 LIMIT 1', [id]);
+    const result = await pool.query(
+      'SELECT id, name, email, phone, role, created_at, updated_at FROM users WHERE id = $1 LIMIT 1',
+      [id],
+    );
     return result.rows[0] || null;
   },
 

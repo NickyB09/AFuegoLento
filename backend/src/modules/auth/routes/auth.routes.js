@@ -1,9 +1,11 @@
 import { Router } from 'express';
+
 import { authenticate } from '../../../middlewares/authenticate.js';
 import { authController } from '../controllers/auth.controller.js';
 
 const router = Router();
 
+// Rutas de registro, sesión y recuperación de acceso.
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.post('/forgot-password', authController.forgotPassword);

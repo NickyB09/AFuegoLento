@@ -1,12 +1,15 @@
 import { Router } from 'express';
 
 import authRoutes from '../modules/auth/routes/auth.routes.js';
+import inventoryRoutes from '../modules/inventory/routes/inventory.routes.js';
 import menuRoutes from '../modules/menu/routes/menu.routes.js';
 import reservationsRoutes from '../modules/reservations/routes/reservations.routes.js';
+import tablesRoutes from '../modules/tables/routes/tables.routes.js';
 import usersRoutes from '../modules/users/routes/users.routes.js';
 
 const router = Router();
 
+// Endpoint liviano para comprobar disponibilidad de la API.
 router.get('/health', (req, res) => {
   res.json({
     success: true,
@@ -15,6 +18,7 @@ router.get('/health', (req, res) => {
   });
 });
 
+// Contenido editorial inicial que la landing puede consumir sin autenticación.
 router.get('/content', (req, res) => {
   res.json({
     success: true,
@@ -36,9 +40,12 @@ router.get('/content', (req, res) => {
   });
 });
 
+// Agrupa rutas por dominio para mantener un backend modular.
 router.use('/auth', authRoutes);
 router.use('/users', usersRoutes);
 router.use('/menu', menuRoutes);
 router.use('/reservations', reservationsRoutes);
+router.use('/tables', tablesRoutes);
+router.use('/inventory', inventoryRoutes);
 
 export default router;

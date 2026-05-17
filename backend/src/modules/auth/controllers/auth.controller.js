@@ -1,7 +1,8 @@
 import crypto from 'crypto';
+
 import { asyncHandler } from '../../../utils/asyncHandler.js';
-import { comparePassword, hashPassword } from '../../../utils/password.js';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../../../utils/jwt.js';
+import { comparePassword, hashPassword } from '../../../utils/password.js';
 import { authRepository } from '../repositories/auth.repository.js';
 import {
   forgotPasswordSchema,
@@ -11,6 +12,7 @@ import {
   resetPasswordSchema,
 } from '../schemas/auth.schemas.js';
 
+// Filtra los campos del usuario que sí pueden salir al cliente.
 function serializeUser(user) {
   return {
     id: user.id,
@@ -21,6 +23,7 @@ function serializeUser(user) {
   };
 }
 
+// Construye el paquete completo de autenticación y rota el refresh token.
 async function buildAuthResponse(user) {
   const payload = {
     sub: user.id,
@@ -47,6 +50,7 @@ async function buildAuthResponse(user) {
   };
 }
 
+// Controladores del flujo completo de autenticación.
 export const authController = {
   register: asyncHandler(async (req, res) => {
     const payload = registerSchema.parse(req.body);
