@@ -34,10 +34,10 @@ export function Input({ label, value, onChangeText, placeholder, multiline = fal
 }
 
 export function Button({ title, onPress, variant = 'primary', disabled = false }) {
-  const base = 'rounded-full px-5 py-3';
+  const base = 'rounded-full px-5 py-3.5';
   const variants = {
     primary: 'bg-brand-copper',
-    secondary: 'border border-brand-charcoal/20 bg-transparent',
+    secondary: 'border border-white/15 bg-white/5',
     dark: 'bg-brand-charcoal',
     danger: 'bg-brand-wine',
   };
@@ -57,9 +57,9 @@ export function Button({ title, onPress, variant = 'primary', disabled = false }
 
 export function Pill({ children, tone = 'default' }) {
   const tones = {
-    default: 'bg-brand-charcoal/10 text-brand-charcoal',
-    success: 'bg-green-100 text-green-800',
-    danger: 'bg-red-100 text-red-800',
+    default: 'bg-white/8 text-brand-ivory border border-white/10',
+    success: 'bg-[#244734] text-brand-ivory border border-[#3f6a52]',
+    danger: 'bg-[#5B2333] text-brand-ivory',
   };
 
   return (
@@ -71,13 +71,13 @@ export function Pill({ children, tone = 'default' }) {
 
 export function Notice({ tone = 'info', children }) {
   const tones = {
-    info: 'border-brand-olive/20 bg-brand-ivory text-brand-charcoal',
-    success: 'border-green-200 bg-green-50 text-green-900',
-    error: 'border-red-200 bg-red-50 text-red-900',
+    info: 'border-white/10 bg-white/6 text-brand-ivory',
+    success: 'border-[#3f6a52] bg-[#244734] text-brand-ivory',
+    error: 'border-[#7a3247] bg-[#3b1622] text-brand-ivory',
   };
   return (
     <View className={`mb-4 rounded-2xl border px-4 py-3 ${tones[tone]}`}>
-      <Text>{children}</Text>
+      <Text className="text-brand-ivory">{children}</Text>
     </View>
   );
 }

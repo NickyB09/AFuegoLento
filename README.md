@@ -21,6 +21,29 @@ AFuegoLento es un monorepo full-stack para un restaurante gourmet con enfoque ed
    - Frontend web: `http://localhost:8081`
    - API health: `http://localhost:4000/api/health`
 
+## Supabase rápido
+
+La forma más simple de conectar AFuegoLento con Supabase es **mantener el backend igual** y cambiar solo la conexión PostgreSQL:
+
+1. Crea tu proyecto en Supabase.
+2. En el dashboard, abre **Connect** y copia el **Session pooler** o **Transaction pooler**.
+3. En `backend/.env` reemplaza:
+   ```env
+   DATABASE_URL=postgresql://postgres.xxxxx:[TU_PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+   DATABASE_SSL=true
+   ```
+4. Arranca backend y frontend:
+   ```bash
+   docker compose up --build backend frontend
+   ```
+   o sin Docker:
+   ```bash
+   npm run dev:backend
+   npm run dev:web
+   ```
+
+Con eso, el backend seguirá usando `pg`, pero ya persistiendo todo en Supabase.
+
 ## Estado actual
 
 ### Backend listo
@@ -133,6 +156,7 @@ AFuegoLento/
 | `NODE_ENV` | Entorno de ejecución |
 | `CLIENT_URL` | Origen permitido por CORS |
 | `DATABASE_URL` | Conexión a PostgreSQL |
+| `DATABASE_SSL` | Activa SSL para proveedores como Supabase |
 | `JWT_ACCESS_SECRET` | Firma del access token |
 | `JWT_REFRESH_SECRET` | Firma del refresh token |
 | `JWT_ACCESS_EXPIRES_IN` | Vida del access token |

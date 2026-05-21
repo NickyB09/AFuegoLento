@@ -7,4 +7,9 @@ const { Pool } = pg;
 // conexión por cada request.
 export const pool = new Pool({
   connectionString: env.databaseUrl,
+  ssl: env.databaseSsl
+    ? {
+        rejectUnauthorized: false,
+      }
+    : false,
 });

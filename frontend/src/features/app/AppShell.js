@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Image, Linking, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Image, Linking, Modal, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { unstable_createElement as createWebElement } from 'react-native-web';
 import { StatusBar } from 'expo-status-bar';
 
 import { Button, Notice, Pill, Section, Input } from '../../components/UI';
@@ -23,6 +24,11 @@ const atmosphereImage = 'https://img.freepik.com/foto-gratis/composicion-acogedo
 const tastingImage = 'https://images.ctfassets.net/pujs1b1v0165/7ndXxKorH27YELFGoeGMXE/13a5356cbf6ab4145823a65670d0f4fc/venison-tartare.jpg?w=1200&fit=fill&fm=webp';
 const reserveCtaImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCd5CaZnvNb3BJVNvD4a24LQCpuMugdjcnoVCmdX3K08J2gQqzq68I3yDrg3rTK2X6cTRbCgGPXe22hPhRscpifmZ1Qylhqd1pVzorgrgcz__1DjQOLRB3UrQZYdHewffM1yS87QrWjL06PJhvlugR8ymbqj5clPclMtk4yGC33p5yrqIIOSHvt7BmIxV-TaY9HT-a7I5zaLS8T9EiGEw7ltmiHK68cXbxy9FvVrCYMouPA6I0FLhBU6Af2wLE_4UpCM17O3KL1xfg';
 const authBackground = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCmTDc1F3jnRg6zLnWHzH0gBGWeLfhDUB3HfxUkqO1rzyfBU-uo1twnx0E3u5hhNJpCFgiSLruztw5K-61AGe2n2-FkWyzayJjtwqWjoYhdcP4SjqpO71gVYpHVa_RXHmYRQDat2kILhEalduZyO1XgZ_qbLMx06yBZECX9M8oxA4deHeJBc2dv7JBJ-Kuzsjeb13e701MQkKE1qswgz255LTvk1w8N2X9PH6v0plddV7oKgO5t-_s05QRvtMF0rkz-BRyiEgX0tRk';
+const reservePromptImage = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80';
+const registerBackground = 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80';
+const reserveBackground = 'https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1400&q=80';
+const accountBackground = 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1400&q=80';
+const contactBackground = 'https://images.unsplash.com/photo-1515669097368-22e68427d265?auto=format&fit=crop&w=1400&q=80';
 
 const emptyRegister = { name: '', email: '', password: '', phone: '' };
 const emptyLogin = { email: '', password: '' };
@@ -70,12 +76,12 @@ function normalizeStatus(status) {
 
 function HamburgerButton({ onPress, className = '' }) {
   return (
-    <Pressable onPress={onPress} className={`self-start rounded-full border border-white/15 bg-[#171514]/70 px-4 py-3 ${className}`}>
+    <Pressable onPress={onPress} className={`self-start rounded-full border border-white/12 bg-[#171514]/78 px-4 py-3 ${className}`}>
       <View className="flex-row items-center gap-3">
         <View className="gap-[3px]">
-          <View className="h-[2px] w-4 rounded-full bg-white" />
-          <View className="h-[2px] w-4 rounded-full bg-white" />
-          <View className="h-[2px] w-4 rounded-full bg-white" />
+          <View className="h-[2px] w-4 rounded-full bg-brand-copper" />
+          <View className="h-[2px] w-4 rounded-full bg-brand-ivory" />
+          <View className="h-[2px] w-4 rounded-full bg-brand-copper" />
         </View>
         <Text className="text-xs uppercase tracking-[3px] text-brand-ivory">Menú</Text>
       </View>
@@ -229,11 +235,15 @@ function LineField({ label, value, onChangeText, placeholder, secureTextEntry = 
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#6d675f"
+        placeholderTextColor="#8f877d"
         secureTextEntry={secureTextEntry}
         multiline={multiline}
-        className="border-b border-white/15 pb-3 text-[17px] text-brand-ivory"
-        style={multiline ? { minHeight: 70, textAlignVertical: 'top' } : undefined}
+        className={`border-b border-white/15 text-[17px] text-brand-ivory ${multiline ? 'pb-3 pt-3' : ''}`}
+        style={
+          multiline
+            ? { minHeight: 96, textAlignVertical: 'top' }
+            : { height: 52, paddingTop: 0, paddingBottom: 0, lineHeight: 22, textAlignVertical: 'center' }
+        }
       />
     </View>
   );
@@ -242,17 +252,28 @@ function LineField({ label, value, onChangeText, placeholder, secureTextEntry = 
 function ReservePromptModal({ visible, onClose, onLogin, onRegister }) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable className="flex-1 items-center justify-center bg-black/80 px-4" onPress={onClose}>
-        <Pressable className="w-full max-w-md rounded-[28px] border border-white/10 bg-[#1d1a19] px-6 py-6" onPress={() => {}}>
-          <Text className="text-xs uppercase tracking-[4px] text-brand-copper">Reservas</Text>
-          <Text className="mt-3 text-3xl text-brand-ivory" style={{ fontFamily: 'serif' }}>Antes de reservar</Text>
-          <Text className="mt-4 leading-7 text-brand-ivory/75">
-            Para continuar con la reserva necesitas una cuenta. Puedes iniciar sesión si ya tienes una o registrarte en segundos.
-          </Text>
-          <View className="mt-6 gap-3">
-            <Button title="Iniciar sesión" onPress={onLogin} />
-            <Button title="Registrarme" variant="secondary" onPress={onRegister} />
-            <Button title="Cerrar" variant="secondary" onPress={onClose} />
+      <Pressable className="flex-1 items-center justify-center bg-black/82 px-4" onPress={onClose}>
+        <Pressable className="w-full max-w-md overflow-hidden rounded-[32px] border border-white/10 bg-[#1d1a19]" onPress={() => {}}>
+          <View className="relative px-6 py-7">
+            <Image source={{ uri: reservePromptImage }} resizeMode="cover" className="absolute inset-0 h-full w-full opacity-15" />
+            <View className="absolute inset-0 bg-[#1d1a19]/92" />
+            <View className="relative">
+              <View className="mb-5 flex-row items-center justify-between">
+                <Text className="text-xs uppercase tracking-[4px] text-brand-copper">Reservas</Text>
+                <Pressable onPress={onClose} className="rounded-full border border-white/10 px-3 py-2">
+                  <Text className="text-[11px] uppercase tracking-[3px] text-brand-ivory/70">Cerrar</Text>
+                </Pressable>
+              </View>
+              <Text className="text-3xl text-brand-ivory" style={{ fontFamily: 'serif' }}>Antes de reservar</Text>
+              <Text className="mt-2 text-base italic text-brand-ivory/62" style={{ fontFamily: 'serif' }}>Tu mesa merece un ingreso elegante.</Text>
+              <Text className="mt-4 leading-7 text-brand-ivory/75">
+                Para continuar con la reserva necesitas una cuenta. Puedes iniciar sesión si ya tienes una o registrarte en segundos.
+              </Text>
+              <View className="mt-6 gap-3">
+                <Button title="Iniciar sesión" onPress={onLogin} />
+                <Button title="Registrarme" variant="secondary" onPress={onRegister} />
+              </View>
+            </View>
           </View>
         </Pressable>
       </Pressable>
@@ -260,7 +281,7 @@ function ReservePromptModal({ visible, onClose, onLogin, onRegister }) {
   );
 }
 
-function Navigation({ page, setPage, isAdmin, onReservePress, drawerOpen, setDrawerOpen }) {
+function Navigation({ page, setPage, isAdmin, onReservePress, drawerOpen, setDrawerOpen, hideBar = false }) {
   const navItems = isAdmin ? [...pages, { key: 'admin', label: 'Admin' }] : pages;
 
   function handleNavigation(item) {
@@ -274,23 +295,25 @@ function Navigation({ page, setPage, isAdmin, onReservePress, drawerOpen, setDra
 
   return (
     <>
-      <DarkPanel className="mb-4">
-        <View className="flex-row items-center justify-between px-3 py-3 md:px-6 md:py-5">
-          <Pressable onPress={() => setDrawerOpen(true)} className="rounded-full border border-white/10 px-4 py-3">
-            <Text className="text-xs uppercase tracking-[3px] text-brand-copper md:text-sm">Menú</Text>
-          </Pressable>
-          <Pressable onPress={() => setPage('home')} className="px-2">
-            <Text className="text-xl italic text-brand-ivory md:text-2xl" style={{ fontFamily: 'serif' }}>AFuegoLento</Text>
-          </Pressable>
-          <Pressable onPress={onReservePress} className="rounded-full border border-brand-copper/40 px-4 py-3">
-            <Text className="text-xs uppercase tracking-[3px] text-brand-copper md:text-sm">Reservar</Text>
-          </Pressable>
-        </View>
-      </DarkPanel>
+      {!hideBar ? (
+        <DarkPanel className="mb-4">
+          <View className="flex-row items-center justify-between px-3 py-3 md:px-6 md:py-5">
+            <Pressable onPress={() => setDrawerOpen(true)} className="rounded-full border border-white/10 bg-[#1b1817] px-4 py-3">
+              <Text className="text-xs uppercase tracking-[3px] text-brand-copper md:text-sm">Menú</Text>
+            </Pressable>
+            <Pressable onPress={() => setPage('home')} className="px-2">
+              <Text className="text-xl italic text-brand-ivory md:text-2xl" style={{ fontFamily: 'serif' }}>AFuegoLento</Text>
+            </Pressable>
+            <Pressable onPress={onReservePress} className="rounded-full border border-brand-copper/40 bg-[#1b1817] px-4 py-3">
+              <Text className="text-xs uppercase tracking-[3px] text-brand-copper md:text-sm">Reservar</Text>
+            </Pressable>
+          </View>
+        </DarkPanel>
+      ) : null}
 
       <Modal visible={drawerOpen} transparent animationType="fade" onRequestClose={() => setDrawerOpen(false)}>
-        <View className="flex-1 flex-row bg-black/70">
-          <View className="h-full w-[280px] border-r border-white/10 bg-[#1c1918] px-5 py-10">
+        <View className="flex-1 flex-row bg-black/74">
+          <View className="h-full w-[310px] border-r border-white/10 bg-[#1c1918] px-5 py-10">
             <View className="mb-8 flex-row items-center justify-between">
               <Text className="text-2xl italic text-brand-ivory" style={{ fontFamily: 'serif' }}>AFuegoLento</Text>
               <Pressable onPress={() => setDrawerOpen(false)} className="rounded-full border border-white/10 px-3 py-2">
@@ -298,14 +321,27 @@ function Navigation({ page, setPage, isAdmin, onReservePress, drawerOpen, setDra
               </Pressable>
             </View>
 
+            <Text className="mb-6 text-sm leading-6 text-brand-ivory/58">
+              Navega la experiencia, descubre la carta y reserva tu próxima mesa con calma.
+            </Text>
+
             <View className="gap-2">
               {navItems.map((item) => (
-                <Pressable key={item.key} onPress={() => handleNavigation(item)} className={`rounded-r-full px-4 py-4 ${page === item.key ? 'border border-white/10 bg-white/5' : ''}`}>
+                <Pressable key={item.key} onPress={() => handleNavigation(item)} className={`rounded-[20px] px-4 py-4 ${page === item.key ? 'border border-white/10 bg-white/5' : 'border border-transparent'}`}>
                   <Text className={`${page === item.key ? 'text-brand-copper' : 'text-brand-ivory/70'} text-sm uppercase tracking-[3px]`}>
                     {item.label}
                   </Text>
                 </Pressable>
               ))}
+            </View>
+
+            <View className="mt-8 rounded-[24px] border border-white/10 bg-[#171514] px-4 py-5">
+              <Text className="text-xs uppercase tracking-[4px] text-brand-copper">Disponibilidad limitada</Text>
+              <Text className="mt-3 text-2xl text-brand-ivory" style={{ fontFamily: 'serif' }}>Reserve una experiencia</Text>
+              <Text className="mt-2 text-sm leading-6 text-brand-ivory/62">Mesas íntimas y un recorrido de temporada diseñado para una noche memorable.</Text>
+              <Pressable onPress={() => handleNavigation({ key: 'reserve' })} className="mt-5 rounded-full bg-brand-copper px-4 py-3">
+                <Text className="text-center text-xs uppercase tracking-[3px] text-brand-ivory">Ir a reservas</Text>
+              </Pressable>
             </View>
           </View>
 
@@ -450,32 +486,48 @@ function HomePage({ data, setPage, onReservePress }) {
 
 function MenuPage({ groupedItems, experiences }) {
   return (
-    <>
-      <Section title="Menú" subtitle="Platos y experiencias cargados desde el backend del proyecto.">
+    <DarkPanel className="mb-6 overflow-hidden">
+      <View className="bg-[#f3ede2] px-5 py-8 md:px-8 md:py-10">
+        <View className="mb-8 border-b border-[#2c251f]/18 pb-6 md:flex-row md:items-end md:justify-between">
+          <View className="md:max-w-xl">
+            <Text className="text-xs uppercase tracking-[4px] text-[#8a5a39]">Carta de temporada</Text>
+            <Text className="mt-3 text-4xl text-[#221d19] md:text-5xl" style={{ fontFamily: 'serif' }}>Menú AFuegoLento</Text>
+            <Text className="mt-3 text-[15px] leading-7 text-[#4e463f]">
+              Una selección de platos y recorridos con una presencia más editorial, inspirada en una carta de restaurante de autor.
+            </Text>
+          </View>
+          <Text className="mt-4 text-right text-xs uppercase tracking-[4px] text-[#7f766d] md:mt-0">Degustación · Principales · Especialidades</Text>
+        </View>
+
         <View className="mb-6 gap-3">
           {experiences.map((experience) => (
-            <View key={experience.id} className="rounded-2xl border border-brand-wine/15 bg-brand-wine/5 px-4 py-4">
-              <Text className="text-2xl text-brand-charcoal" style={{ fontFamily: 'serif' }}>{experience.name}</Text>
-              <Text className="mt-2 leading-7 text-brand-charcoal/80">{experience.description}</Text>
-              <Text className="mt-3 font-semibold text-brand-wine">{formatCurrency(experience.price)}</Text>
+            <View key={experience.id} className="rounded-[24px] border border-[#2c251f]/12 bg-[#fbf7f1] px-4 py-4">
+              <View className="flex-row items-start justify-between gap-4">
+                <View style={{ flex: 1 }}>
+                  <Text className="text-2xl text-[#221d19]" style={{ fontFamily: 'serif' }}>{experience.name}</Text>
+                  <Text className="mt-2 leading-7 text-[#4e463f]">{experience.description}</Text>
+                </View>
+                <Text className="text-base font-semibold text-[#8a5a39]">{formatCurrency(experience.price)}</Text>
+              </View>
             </View>
           ))}
         </View>
 
-        <View className="gap-5">
-          {groupedItems.map((category) => (
-            <View key={category.id} className="rounded-2xl border border-brand-olive/15 bg-white px-4 py-5">
-              <Text className="text-3xl text-brand-charcoal" style={{ fontFamily: 'serif' }}>{category.name}</Text>
-              {category.description ? <Text className="mt-2 leading-7 text-brand-charcoal/70">{category.description}</Text> : null}
+        <View className="gap-5 md:grid md:grid-cols-2">
+          {groupedItems.map((category, index) => (
+            <View key={category.id} className={`rounded-[28px] border border-[#2c251f]/12 bg-[#fffdf8] px-4 py-5 ${index % 2 === 1 ? 'md:mt-14' : ''}`}>
+              <Text className="text-[13px] font-semibold uppercase tracking-[4px] text-[#7f766d]">{index === 0 ? 'Aperitivos' : index === 1 ? 'Principales' : category.name}</Text>
+              <Text className="mt-2 text-3xl text-[#221d19]" style={{ fontFamily: 'serif' }}>{category.name}</Text>
+              {category.description ? <Text className="mt-2 leading-7 text-[#4e463f]">{category.description}</Text> : null}
               <View className="mt-4 gap-3">
                 {category.items.map((item) => (
-                  <View key={item.id} className="border-t border-brand-olive/10 pt-3">
+                  <View key={item.id} className="border-t border-[#2c251f]/10 pt-3">
                     <View className="flex-row items-start justify-between gap-4">
                       <View style={{ flex: 1 }}>
-                        <Text className="text-lg font-semibold text-brand-charcoal">{item.name}</Text>
-                        <Text className="mt-1 leading-6 text-brand-charcoal/75">{item.description}</Text>
+                        <Text className="text-lg font-semibold text-[#221d19]">{item.name}</Text>
+                        <Text className="mt-1 leading-6 text-[#4e463f]">{item.description}</Text>
                       </View>
-                      <Text className="font-semibold text-brand-wine">{formatCurrency(item.price)}</Text>
+                      <Text className="font-semibold text-[#8a5a39]">{formatCurrency(item.price)}</Text>
                     </View>
                   </View>
                 ))}
@@ -483,18 +535,61 @@ function MenuPage({ groupedItems, experiences }) {
             </View>
           ))}
         </View>
-      </Section>
-    </>
+      </View>
+    </DarkPanel>
   );
 }
 
 function ExperienceChoice({ selected, onPress, title, body, subtitle }) {
   return (
     <Pressable onPress={onPress} className={`rounded-[20px] border px-4 py-4 ${selected ? 'border-brand-copper bg-brand-copper/10' : 'border-white/10 bg-[#1b1817]'}`}>
-      <Text className={`text-lg ${selected ? 'text-brand-ivory' : 'text-brand-ivory/90'}`} style={{ fontFamily: 'serif' }}>{title}</Text>
+      <Text className="text-lg text-brand-ivory" style={{ fontFamily: 'serif', opacity: selected ? 1 : 0.92 }}>{title}</Text>
       {subtitle ? <Text className="mt-1 text-xs uppercase tracking-[3px] text-brand-copper">{subtitle}</Text> : null}
-      {body ? <Text className="mt-2 leading-6 text-brand-ivory/62">{body}</Text> : null}
+      {body ? <Text className="mt-2 leading-6 text-brand-ivory" style={{ opacity: 0.68 }}>{body}</Text> : null}
     </Pressable>
+  );
+}
+
+function DateTimeField({ label, value, onChangeText, type = 'date', min }) {
+  if (Platform.OS === 'web') {
+    return (
+      <View className="mb-6">
+        <Text className="mb-2 text-xs uppercase tracking-[3px] text-brand-ivory/55">{label}</Text>
+        {createWebElement('input', {
+          type,
+          value,
+          min,
+          onChange: (event) => onChangeText(event.target.value),
+          style: {
+            width: '100%',
+            height: 52,
+            backgroundColor: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: 16,
+            padding: '0 16px',
+            color: '#F3EEE6',
+            outline: 'none',
+            fontSize: 17,
+            boxSizing: 'border-box',
+            fontFamily: 'system-ui, sans-serif',
+          },
+        })}
+      </View>
+    );
+  }
+
+  return (
+    <View className="mb-6">
+      <Text className="mb-2 text-xs uppercase tracking-[3px] text-brand-ivory/55">{label}</Text>
+      <TextInput
+        value={value}
+        onChangeText={onChangeText}
+        className="h-[52px] border-b border-white/15 text-[17px] text-brand-ivory"
+        placeholderTextColor="#8f877d"
+        autoCapitalize="none"
+        style={{ paddingTop: 0, paddingBottom: 0, lineHeight: 22, textAlignVertical: 'center' }}
+      />
+    </View>
   );
 }
 
@@ -506,31 +601,33 @@ function ReservePage({ user, tableTypes, experiences, onRequireAuth, onCreate, o
   }, [editingReservation]);
 
   const isEditing = !!editingReservation;
+  const today = new Date().toISOString().split('T')[0];
 
   return (
     <>
       {!user ? <Notice tone="info">Debes iniciar sesión o registrarte para confirmar una reserva.</Notice> : null}
 
       <DarkPanel className="mb-6 overflow-hidden">
-        <View className="relative px-5 py-10 md:px-8 md:py-12">
-          <Text className="text-center text-xs uppercase tracking-[4px] text-brand-copper">Una experiencia singular</Text>
-          <Text className="mt-4 text-center text-4xl text-brand-ivory md:text-5xl" style={{ fontFamily: 'serif' }}>{isEditing ? 'Editar Reserva' : 'Su Mesa'}</Text>
-          <Text className="mt-3 text-center text-lg italic text-brand-ivory/65" style={{ fontFamily: 'serif' }}>
-            {isEditing ? 'Ajuste los detalles de su visita.' : 'Permítanos preparar su espacio.'}
-          </Text>
+        <View className="relative overflow-hidden px-5 py-10 md:px-8 md:py-12">
+          <Image source={{ uri: reserveBackground }} resizeMode="cover" className="absolute inset-0 h-full w-full opacity-18" />
+          <View className="absolute inset-0 bg-[#171514]/90" />
+          <View className="relative">
+            <Text className="text-center text-xs uppercase tracking-[4px] text-brand-copper">Una experiencia singular</Text>
+            <Text className="mt-4 text-center text-4xl text-brand-ivory md:text-5xl" style={{ fontFamily: 'serif' }}>{isEditing ? 'Editar Reserva' : 'Su Mesa'}</Text>
+            <Text className="mt-3 text-center text-lg italic text-brand-ivory" style={{ fontFamily: 'serif', opacity: 0.7 }}>
+              {isEditing ? 'Ajuste los detalles de su visita.' : 'Permítanos preparar su espacio.'}
+            </Text>
+            <Text className="mx-auto mt-4 max-w-2xl text-center text-sm leading-7 text-brand-ivory" style={{ opacity: 0.62 }}>
+              Elija fecha, hora y el tipo de experiencia con un flujo más cómodo para que su reserva se sienta tan cuidada como la visita.
+            </Text>
+          </View>
         </View>
       </DarkPanel>
 
-      {confirmation ? (
-        <Notice tone="success">
-          Reserva {normalizeStatus(confirmation.status).label.toLowerCase()} para {formatDate(confirmation.reservation_date)} a las {confirmation.reservation_time.slice(0, 5)}.
-        </Notice>
-      ) : null}
-
       <DarkPanel className="mb-6 px-5 py-6 md:px-8 md:py-8">
         <Text className="mb-6 text-xs uppercase tracking-[4px] text-brand-copper">Fecha y comensales</Text>
-        <LineField label="Fecha" value={form.reservationDate} onChangeText={(value) => setForm((prev) => ({ ...prev, reservationDate: value }))} placeholder="2026-05-20" />
-        <LineField label="Hora" value={form.reservationTime} onChangeText={(value) => setForm((prev) => ({ ...prev, reservationTime: value }))} placeholder="20:00" />
+        <DateTimeField label="Fecha" value={form.reservationDate} onChangeText={(value) => setForm((prev) => ({ ...prev, reservationDate: value }))} min={today} />
+        <DateTimeField label="Hora" value={form.reservationTime} onChangeText={(value) => setForm((prev) => ({ ...prev, reservationTime: value }))} type="time" />
         <LineField label="Comensales" value={form.guestCount} onChangeText={(value) => setForm((prev) => ({ ...prev, guestCount: value }))} placeholder="2" />
       </DarkPanel>
 
@@ -637,6 +734,18 @@ function ReservationConfirmationPage({ reservation, onGoHome, onGoAccount }) {
   );
 }
 
+function AuthShell({ image, children }) {
+  return (
+    <View className="relative min-h-screen overflow-hidden bg-[#141313]">
+      <Image source={{ uri: image }} resizeMode="cover" className="absolute inset-0 h-full w-full opacity-38" />
+      <View className="absolute inset-0 bg-[#0f0d0d]/40" />
+      <View className="absolute inset-0 bg-gradient-to-b from-[#141313]/15 via-[#141313]/72 to-[#141313]" />
+      <View className="absolute inset-0 bg-gradient-to-r from-[#141313]/88 via-[#141313]/45 to-transparent" />
+      {children}
+    </View>
+  );
+}
+
 function AuthPage({ onLogin, onRegister, onForgot, onReset, onOpenMenu }) {
   const [mode, setMode] = useState('login');
   const [loginForm, setLoginForm] = useState(emptyLogin);
@@ -646,108 +755,107 @@ function AuthPage({ onLogin, onRegister, onForgot, onReset, onOpenMenu }) {
 
   if (mode === 'register') {
     return (
-      <View className="relative min-h-screen overflow-hidden bg-[#141313]">
-        <Image source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDbX7UmEemXKqfWJJ0sZh49Glq8Sy0KQCenUhr8nGkSoFnEbDE4FKDQHMC6A2ZtfgUKEfq9jmDoa4f3a-_4gQlszO6HOK7i8CncwRI4h1wK_rKl0BEm5072t_KdzFLr7HgxqqiWXj8RQipfCtfc28OOBRFnvXYn0dBS4fZqokyaDhqOY64QnJz__7u6B-AVolCvD-aUKl_BtuPQ74hc_jI51Azk8XHa8nDb0nyT0VtKwHioUYEMX9dP6qbBcsO-5PuM7oY7FKvUiiY' }} resizeMode="cover" className="absolute left-0 right-0 top-0 h-[360px] w-full opacity-20" />
-        <View className="absolute left-0 right-0 top-0 h-[420px] bg-gradient-to-b from-transparent to-[#141313]" />
-
+      <AuthShell image={registerBackground}>
         <View className="relative mx-auto w-full max-w-md px-6 py-10 md:px-10 md:py-12">
           <HamburgerButton onPress={onOpenMenu} className="mb-8" />
           <Pressable onPress={() => setMode('login')} className="mb-12 self-start">
             <Text className="text-2xl text-brand-ivory/80">←</Text>
           </Pressable>
 
-          <Text className="text-[32px] italic leading-[40px] text-brand-ivory" style={{ fontFamily: 'serif' }}>AFuegoLento</Text>
-          <Text className="mt-2 text-[16px] leading-7 text-brand-ivory/88">Regístrese para comenzar su experiencia.</Text>
+          <View className="rounded-[30px] border border-white/10 bg-[#171514]/84 px-6 py-7">
+            <Text className="text-[32px] italic leading-[40px] text-brand-ivory" style={{ fontFamily: 'serif' }}>AFuegoLento</Text>
+            <Text className="mt-2 text-[16px] leading-7 text-brand-ivory/88">Regístrese para comenzar su experiencia.</Text>
+            <Text className="mt-2 text-sm leading-6 text-brand-ivory/58">Una cuenta le permite reservar, editar visitas y seguir cada detalle de su mesa.</Text>
 
-          <View className="mt-12">
-            <LineField label="Nombre Completo" value={registerForm.name} onChangeText={(value) => setRegisterForm((prev) => ({ ...prev, name: value }))} placeholder="Ej. María Valdés" />
-            <LineField label="Correo Electrónico" value={registerForm.email} onChangeText={(value) => setRegisterForm((prev) => ({ ...prev, email: value }))} placeholder="correo@ejemplo.com" />
-            <LineField label="Teléfono" value={registerForm.phone} onChangeText={(value) => setRegisterForm((prev) => ({ ...prev, phone: value }))} placeholder="+34 600 000 000" />
-            <LineField label="Contraseña" value={registerForm.password} onChangeText={(value) => setRegisterForm((prev) => ({ ...prev, password: value }))} placeholder="••••••••" secureTextEntry />
-          </View>
+            <View className="mt-10">
+              <LineField label="Nombre Completo" value={registerForm.name} onChangeText={(value) => setRegisterForm((prev) => ({ ...prev, name: value }))} placeholder="Ej. María Valdés" />
+              <LineField label="Correo Electrónico" value={registerForm.email} onChangeText={(value) => setRegisterForm((prev) => ({ ...prev, email: value }))} placeholder="correo@ejemplo.com" />
+              <LineField label="Teléfono" value={registerForm.phone} onChangeText={(value) => setRegisterForm((prev) => ({ ...prev, phone: value }))} placeholder="+34 600 000 000" />
+              <LineField label="Contraseña" value={registerForm.password} onChangeText={(value) => setRegisterForm((prev) => ({ ...prev, password: value }))} placeholder="••••••••" secureTextEntry />
+            </View>
 
-          <Pressable onPress={() => onRegister(registerForm, () => setRegisterForm(emptyRegister))} className="mt-8 bg-[#feb78a] px-6 py-4">
-            <Text className="text-center text-sm uppercase tracking-[3px] text-[#311300]">Crear Cuenta</Text>
-          </Pressable>
+            <Pressable onPress={() => onRegister(registerForm, () => setRegisterForm(emptyRegister))} className="mt-8 rounded-full bg-brand-copper px-6 py-4">
+              <Text className="text-center text-sm uppercase tracking-[3px] text-brand-ivory">Crear Cuenta</Text>
+            </Pressable>
 
-          <View className="mt-10 items-center">
-            <Text className="text-[16px] leading-7 text-brand-ivory/65">
-              ¿Ya tiene una reserva o cuenta?{' '}
-              <Text onPress={() => setMode('login')} className="border-b border-brand-copper/30 text-brand-copper">Iniciar sesión</Text>
-            </Text>
+            <View className="mt-10 items-center">
+              <Text className="text-center text-[16px] leading-7 text-brand-ivory/65">
+                ¿Ya tiene una reserva o cuenta?{' '}
+                <Text onPress={() => setMode('login')} className="border-b border-brand-copper/30 text-brand-copper">Iniciar sesión</Text>
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
+      </AuthShell>
     );
   }
 
   if (mode === 'reset') {
     return (
-      <View className="relative min-h-screen overflow-hidden bg-[#141313]">
-        <Image source={{ uri: authBackground }} resizeMode="cover" className="absolute inset-0 h-full w-full opacity-25" />
-        <View className="absolute inset-0 bg-gradient-to-b from-[#141313]/10 via-[#141313]/80 to-[#141313]" />
-
+      <AuthShell image={authBackground}>
         <View className="relative mx-auto w-full max-w-md px-6 py-10 md:px-10 md:py-12">
           <HamburgerButton onPress={onOpenMenu} className="mb-8" />
           <Pressable onPress={() => setMode('login')} className="mb-12 self-start">
             <Text className="text-2xl text-brand-ivory/80">←</Text>
           </Pressable>
 
-          <Text className="text-[40px] italic leading-[48px] text-brand-ivory" style={{ fontFamily: 'serif' }}>AFuegoLento</Text>
-          <Text className="mt-3 text-[22px] italic leading-8 text-brand-ivory/78" style={{ fontFamily: 'serif' }}>Restablezca su acceso.</Text>
+          <View className="rounded-[30px] border border-white/10 bg-[#171514]/84 px-6 py-7">
+            <Text className="text-[40px] italic leading-[48px] text-brand-ivory" style={{ fontFamily: 'serif' }}>AFuegoLento</Text>
+            <Text className="mt-3 text-[22px] italic leading-8 text-brand-ivory/78" style={{ fontFamily: 'serif' }}>Restablezca su acceso.</Text>
 
-          <View className="mt-16">
-            <LineField label="Correo Electrónico" value={forgotForm.email} onChangeText={(value) => setForgotForm({ email: value })} placeholder="su@correo.com" />
-            <Pressable onPress={() => onForgot(forgotForm)} className="mt-8 bg-[#feb78a] px-6 py-4">
-              <Text className="text-center text-sm uppercase tracking-[3px] text-[#311300]">Generar token</Text>
-            </Pressable>
-
-            <View className="mt-10">
-              <LineField label="Token" value={resetForm.token} onChangeText={(value) => setResetForm((prev) => ({ ...prev, token: value }))} placeholder="Pega el token" />
-              <LineField label="Nueva Contraseña" value={resetForm.newPassword} onChangeText={(value) => setResetForm((prev) => ({ ...prev, newPassword: value }))} placeholder="••••••••" secureTextEntry />
-              <Pressable onPress={() => onReset(resetForm, () => setResetForm(emptyReset))} className="mt-6 border border-white/15 px-6 py-4">
-                <Text className="text-center text-sm uppercase tracking-[3px] text-brand-ivory">Cambiar contraseña</Text>
+            <View className="mt-12">
+              <LineField label="Correo Electrónico" value={forgotForm.email} onChangeText={(value) => setForgotForm({ email: value })} placeholder="su@correo.com" />
+              <Pressable onPress={() => onForgot(forgotForm)} className="mt-8 rounded-full bg-brand-copper px-6 py-4">
+                <Text className="text-center text-sm uppercase tracking-[3px] text-brand-ivory">Generar token</Text>
               </Pressable>
+
+              <View className="mt-10">
+                <LineField label="Token" value={resetForm.token} onChangeText={(value) => setResetForm((prev) => ({ ...prev, token: value }))} placeholder="Pega el token" />
+                <LineField label="Nueva Contraseña" value={resetForm.newPassword} onChangeText={(value) => setResetForm((prev) => ({ ...prev, newPassword: value }))} placeholder="••••••••" secureTextEntry />
+                <Pressable onPress={() => onReset(resetForm, () => setResetForm(emptyReset))} className="mt-6 rounded-full border border-white/15 bg-white/5 px-6 py-4">
+                  <Text className="text-center text-sm uppercase tracking-[3px] text-brand-ivory">Cambiar contraseña</Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         </View>
-      </View>
+      </AuthShell>
     );
   }
 
   return (
-    <View className="relative min-h-screen overflow-hidden bg-[#141313]">
-      <Image source={{ uri: authBackground }} resizeMode="cover" className="absolute inset-0 h-full w-full opacity-40" />
-      <View className="absolute inset-0 bg-gradient-to-b from-[#141313]/10 via-[#141313]/80 to-[#141313]" />
-      <View className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-[#141313]/90 via-transparent to-transparent" />
-
+    <AuthShell image={authBackground}>
       <View className="relative mx-auto flex-1 w-full max-w-md justify-between px-6 py-10 md:px-10 md:py-12">
         <View className="pt-6">
           <HamburgerButton onPress={onOpenMenu} className="mb-10" />
+        </View>
+
+        <View className="rounded-[30px] border border-white/10 bg-[#171514]/84 px-6 py-7">
           <Text className="text-[40px] italic leading-[48px] text-brand-ivory" style={{ fontFamily: 'serif' }}>AFuegoLento</Text>
           <Text className="mt-3 text-[22px] italic leading-8 text-brand-ivory/88" style={{ fontFamily: 'serif' }}>Un santuario para los sentidos.</Text>
-        </View>
+          <Text className="mt-2 text-sm leading-6 text-brand-ivory/58">Accede a tu cuenta para gestionar reservas, editar visitas y continuar tu experiencia gastronómica.</Text>
 
-        <View className="pb-4">
-          <LineField label="Correo Electrónico" value={loginForm.email} onChangeText={(value) => setLoginForm((prev) => ({ ...prev, email: value }))} placeholder="su@correo.com" />
-          <LineField label="Contraseña" value={loginForm.password} onChangeText={(value) => setLoginForm((prev) => ({ ...prev, password: value }))} placeholder="••••••••" secureTextEntry />
+          <View className="mt-10">
+            <LineField label="Correo Electrónico" value={loginForm.email} onChangeText={(value) => setLoginForm((prev) => ({ ...prev, email: value }))} placeholder="su@correo.com" />
+            <LineField label="Contraseña" value={loginForm.password} onChangeText={(value) => setLoginForm((prev) => ({ ...prev, password: value }))} placeholder="••••••••" secureTextEntry />
 
-          <View className="mb-10 mt-2 items-end">
-            <Pressable onPress={() => setMode('reset')}>
-              <Text className="text-xs uppercase tracking-[3px] text-brand-ivory/55">Olvidé mi contraseña</Text>
+            <View className="mb-10 mt-2 items-end">
+              <Pressable onPress={() => setMode('reset')}>
+                <Text className="text-xs uppercase tracking-[3px] text-brand-ivory/55">Olvidé mi contraseña</Text>
+              </Pressable>
+            </View>
+
+            <Pressable onPress={() => onLogin(loginForm, () => setLoginForm(emptyLogin))} className="rounded-full bg-brand-copper px-6 py-4">
+              <Text className="text-center text-sm uppercase tracking-[3px] text-brand-ivory">Iniciar Sesión</Text>
+            </Pressable>
+
+            <Pressable onPress={() => setMode('register')} className="mt-4 rounded-full border border-white/15 bg-white/5 px-6 py-4">
+              <Text className="text-center text-sm uppercase tracking-[3px] text-brand-ivory">Registrarse</Text>
             </Pressable>
           </View>
-
-          <Pressable onPress={() => onLogin(loginForm, () => setLoginForm(emptyLogin))} className="bg-[#feb78a] px-6 py-4">
-            <Text className="text-center text-sm uppercase tracking-[3px] text-[#311300]">Iniciar Sesión</Text>
-          </Pressable>
-
-          <Pressable onPress={() => setMode('register')} className="mt-4 border border-white/15 px-6 py-4">
-            <Text className="text-center text-sm uppercase tracking-[3px] text-brand-ivory">Registrarse</Text>
-          </Pressable>
         </View>
       </View>
-    </View>
+    </AuthShell>
   );
 }
 
@@ -795,22 +903,27 @@ function AccountPage({ auth, reservations, onLogin, onRegister, onForgot, onRese
 
   return (
     <>
-      <DarkPanel className="mb-6 px-5 py-6 md:px-8 md:py-8">
-        <View className="mb-6 flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <DarkPanel className="mb-6 overflow-hidden">
+        <View className="relative overflow-hidden px-5 py-6 md:px-8 md:py-8">
+          <Image source={{ uri: accountBackground }} resizeMode="cover" className="absolute inset-0 h-full w-full opacity-16" />
+          <View className="absolute inset-0 bg-[#171514]/90" />
+          <View className="relative mb-6 flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <View>
+              <Text className="text-4xl text-brand-ivory" style={{ fontFamily: 'serif' }}>Mi cuenta</Text>
+              <Text className="mt-2 text-brand-ivory/60">Edita tus datos básicos y gestiona tus visitas.</Text>
+            </View>
+            <View className="w-full md:w-[220px]">
+              <Button title="Cerrar sesión" variant="secondary" onPress={onLogout} />
+            </View>
+          </View>
           <View>
-            <Text className="text-4xl text-brand-ivory" style={{ fontFamily: 'serif' }}>Mi cuenta</Text>
-            <Text className="mt-2 text-brand-ivory/60">Edita tus datos básicos y gestiona tus visitas.</Text>
+            <LineField label="Nombre" value={profileForm.name} onChangeText={(value) => setProfileForm((prev) => ({ ...prev, name: value }))} placeholder="Tu nombre" />
+            <LineField label="Teléfono" value={profileForm.phone} onChangeText={(value) => setProfileForm((prev) => ({ ...prev, phone: value }))} placeholder="3001234567" />
+            <View className="gap-3 md:flex-row">
+              <Button title="Guardar perfil" onPress={() => onUpdateProfile(profileForm)} />
+              <Button title="Nueva reserva" variant="secondary" onPress={() => setPage('reserve')} />
+            </View>
           </View>
-          <View className="w-full md:w-[220px]">
-            <Button title="Cerrar sesión" variant="secondary" onPress={onLogout} />
-          </View>
-        </View>
-
-        <LineField label="Nombre" value={profileForm.name} onChangeText={(value) => setProfileForm((prev) => ({ ...prev, name: value }))} placeholder="Tu nombre" />
-        <LineField label="Teléfono" value={profileForm.phone} onChangeText={(value) => setProfileForm((prev) => ({ ...prev, phone: value }))} placeholder="3001234567" />
-        <View className="gap-3 md:flex-row">
-          <Button title="Guardar perfil" onPress={() => onUpdateProfile(profileForm)} />
-          <Button title="Nueva reserva" variant="secondary" onPress={() => setPage('reserve')} />
         </View>
       </DarkPanel>
 
@@ -838,14 +951,21 @@ function AccountPage({ auth, reservations, onLogin, onRegister, onForgot, onRese
 
 function ContactPage({ contact }) {
   return (
-    <DarkPanel className="px-5 py-6 md:px-8 md:py-8">
-      <Text className="text-4xl text-brand-ivory" style={{ fontFamily: 'serif' }}>Contacto</Text>
-      <Text className="mt-4 text-brand-ivory/70">Dirección: {contact?.address}</Text>
-      <Text className="mt-2 text-brand-ivory/70">Horario: {contact?.hours}</Text>
-      <Text className="mt-2 text-brand-ivory/70">Teléfono: {contact?.phone}</Text>
-      <Text className="mt-2 text-brand-ivory/70">Email: {contact?.email}</Text>
-      <View className="mt-6 max-w-xs">
-        <Button title="Abrir Google Maps" onPress={() => Linking.openURL('https://maps.google.com/?q=4.7110,-74.0721')} />
+    <DarkPanel className="overflow-hidden">
+      <View className="relative overflow-hidden px-5 py-6 md:px-8 md:py-8">
+        <Image source={{ uri: contactBackground }} resizeMode="cover" className="absolute inset-0 h-full w-full opacity-16" />
+        <View className="absolute inset-0 bg-[#171514]/90" />
+        <View className="relative">
+          <Text className="text-4xl text-brand-ivory" style={{ fontFamily: 'serif' }}>Contacto</Text>
+          <Text className="mt-3 max-w-2xl text-sm leading-7 text-brand-ivory/58">Reserve una conversación, una visita o una próxima noche memorable. Estamos atentos a cada detalle.</Text>
+          <Text className="mt-6 text-brand-ivory/70">Dirección: {contact?.address}</Text>
+          <Text className="mt-2 text-brand-ivory/70">Horario: {contact?.hours}</Text>
+          <Text className="mt-2 text-brand-ivory/70">Teléfono: {contact?.phone}</Text>
+          <Text className="mt-2 text-brand-ivory/70">Email: {contact?.email}</Text>
+          <View className="mt-6 max-w-xs">
+            <Button title="Abrir Google Maps" onPress={() => Linking.openURL('https://maps.google.com/?q=4.7110,-74.0721')} />
+          </View>
+        </View>
       </View>
     </DarkPanel>
   );
@@ -944,7 +1064,7 @@ function Footer({ setPage, onReservePress }) {
       </View>
 
       <View className="mx-auto mt-8 w-full max-w-[1380px] border-t border-white/5 pt-6 md:flex-row md:items-center md:justify-between">
-        <Text className="text-sm text-brand-ivory/35">© 2024 AFuegoLento. Una firma de autor.</Text>
+        <Text className="text-sm text-brand-ivory/35">© 2026 Nicolás Palacio · AFuegoLento.</Text>
         <View className="mt-4 flex-row gap-4 md:mt-0">
           <Text className="text-xs uppercase tracking-[3px] text-brand-ivory/30">Privacidad</Text>
           <Text className="text-xs uppercase tracking-[3px] text-brand-ivory/30">Términos</Text>
@@ -960,6 +1080,35 @@ export function AppShell() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [reservePromptOpen, setReservePromptOpen] = useState(false);
   const [editingReservation, setEditingReservation] = useState(null);
+
+  useEffect(() => {
+    if (!app.notice) return;
+
+    const timeoutId = setTimeout(() => {
+      app.clearNotice();
+    }, 3200);
+
+    return () => clearTimeout(timeoutId);
+  }, [app.notice]);
+
+  useEffect(() => {
+    if (app.page !== 'confirmation') {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setLastConfirmation(null);
+      app.setPage('account');
+    }, 4200);
+
+    return () => clearTimeout(timeoutId);
+  }, [app.page, app.setPage]);
+
+  useEffect(() => {
+    if (app.page !== 'confirmation' && app.page !== 'reserve') {
+      setLastConfirmation(null);
+    }
+  }, [app.page]);
 
   async function withAction(action, successMessage) {
     app.clearNotice();
@@ -1078,7 +1227,15 @@ export function AppShell() {
           className={`w-full flex-1 ${isAuthScreen ? '' : 'px-3 py-4 md:px-8 md:py-8'}`}
           style={isAuthScreen ? undefined : { maxWidth: 1380, alignSelf: 'center' }}
         >
-          {!isAuthScreen ? <Navigation page={app.page} setPage={app.setPage} isAdmin={app.isAdmin} onReservePress={handleReserveIntent} drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} /> : null}
+          <Navigation
+            page={app.page}
+            setPage={app.setPage}
+            isAdmin={app.isAdmin}
+            onReservePress={handleReserveIntent}
+            drawerOpen={drawerOpen}
+            setDrawerOpen={setDrawerOpen}
+            hideBar={isAuthScreen}
+          />
 
           {app.notice ? <Notice tone={app.notice.tone}>{app.notice.message}</Notice> : null}
 

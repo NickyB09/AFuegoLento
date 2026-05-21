@@ -7,7 +7,16 @@ export function formatCurrency(value) {
 }
 
 export function formatDate(dateString) {
-  return new Date(`${dateString}T00:00:00`).toLocaleDateString('es-CO', {
+  if (!dateString) return 'Fecha pendiente';
+
+  const normalized = String(dateString).split('T')[0];
+  const parsed = new Date(`${normalized}T12:00:00`);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return normalized;
+  }
+
+  return parsed.toLocaleDateString('es-CO', {
     weekday: 'short',
     year: 'numeric',
     month: 'short',
