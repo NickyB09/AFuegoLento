@@ -236,4 +236,5 @@ El backend crea automáticamente:
 
 - `docs/backend-api.md` — endpoints, payloads y reglas principales de la API
 - `docs/session-2026-05-16.md` — resumen detallado de la sesión actual y continuidad
+- `docs/deploy-production.md` — guía de despliegue productivo con Render + Vercel + Supabase
 

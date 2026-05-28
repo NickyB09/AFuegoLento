@@ -1,3 +1,4 @@
+// Paleta central de la marca AFuegoLento.
 export const colors = {
   charcoal: '#171514',
   ivory: '#F3EEE6',

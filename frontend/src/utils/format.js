@@ -1,3 +1,4 @@
+// Helpers de presentación para fechas y valores mostrados en la interfaz.
 export function formatCurrency(value) {
   return new Intl.NumberFormat('es-CO', {
     style: 'currency',

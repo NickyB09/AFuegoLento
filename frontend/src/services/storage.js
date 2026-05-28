@@ -1,11 +1,14 @@
+// Claves usadas para conservar sesión en el navegador.
 const ACCESS_TOKEN_KEY = 'afuegolento_access_token';
 const REFRESH_TOKEN_KEY = 'afuegolento_refresh_token';
 const USER_KEY = 'afuegolento_user';
 
+// Verifica localStorage para evitar errores en entornos no web.
 function canUseStorage() {
   return typeof window !== 'undefined' && !!window.localStorage;
 }
 
+// Servicio mínimo para leer, guardar y limpiar la sesión local.
 export const storage = {
   getAuth() {
     if (!canUseStorage()) return null;

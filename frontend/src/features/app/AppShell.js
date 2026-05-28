@@ -8,6 +8,7 @@ import { api } from '../../services/api';
 import { storage } from '../../services/storage';
 import { formatCurrency, formatDate } from '../../utils/format';
 
+// Páginas principales usadas por el menú y el render condicional.
 const pages = [
   { key: 'home', label: 'Inicio' },
   { key: 'menu', label: 'Menú' },
@@ -16,6 +17,7 @@ const pages = [
   { key: 'contact', label: 'Contacto' },
 ];
 
+// Imágenes externas que dan la identidad visual editorial del sitio.
 const heroImage = 'https://images.unsplash.com/photo-1543353071-10c8ba85a904?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Zm9uZG8lMjBkZSUyMGNvbWlkYXxlbnwwfHwwfHx8MA%3D%3D';
 const philosophyImage = 'https://img.freepik.com/foto-gratis/vista-arriba-mesa-llena-comida_23-2149209253.jpg?semt=ais_hybrid&w=740&q=80';
 const productImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuDXblMFmC8i3p374xaVnvESQa57J8tJ5c0CUhyFf2cZLJg0CrN7TAjcvXpbX8D4jk3BGIbFrUgfyKsmAVgrRPObYhh6zg5--qjXsgqlQlc7sGdnpHdw6qK7Q6MXWj-DZ8h5YC-KaqIA1hBc7uFCqsPiFlV6PU6F1_ZddCZ8qhAjG0YUToR7ozl9WJBOW2GG4kPrLWi1RinzdeOrlDa3MWeDgzDsVznaOuOHff64pQ-guEHu3M-zaFeEV3Mj0sboR35lr1uKsc3uPy4';
@@ -30,6 +32,7 @@ const reserveBackground = 'https://images.unsplash.com/photo-1552566626-52f8b828
 const accountBackground = 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1400&q=80';
 const contactBackground = 'https://images.unsplash.com/photo-1515669097368-22e68427d265?auto=format&fit=crop&w=1400&q=80';
 
+// Estados iniciales de formularios; ayudan a limpiar campos después de cada acción.
 const emptyRegister = { name: '', email: '', password: '', phone: '' };
 const emptyLogin = { email: '', password: '' };
 const emptyForgot = { email: '' };
@@ -49,6 +52,7 @@ const emptyCategory = { name: '', description: '', sortOrder: '0' };
 const emptyExperience = { name: '', description: '', price: '', isActive: true };
 const emptyItem = { categoryId: '', experienceId: '', name: '', description: '', price: '', imageUrl: '', isAvailable: true };
 
+// Traducción visual de estados de reserva para mostrarlos como etiquetas.
 const reservationStatusMeta = {
   pending: { label: 'Pendiente', tone: 'default' },
   confirmed: { label: 'Confirmada', tone: 'success' },
@@ -56,6 +60,7 @@ const reservationStatusMeta = {
   cancelled: { label: 'Cancelada', tone: 'danger' },
 };
 
+// Convierte una reserva existente al formato que usa el formulario de edición.
 function reservationToForm(reservation) {
   return {
     reservationDate: reservation?.reservation_date || '',
@@ -70,10 +75,12 @@ function reservationToForm(reservation) {
   };
 }
 
+// Evita romper la UI si llega un estado desconocido desde la API.
 function normalizeStatus(status) {
   return reservationStatusMeta[status] || { label: status, tone: 'default' };
 }
 
+// Botón reutilizable para abrir el drawer de navegación.
 function HamburgerButton({ onPress, className = '' }) {
   return (
     <Pressable onPress={onPress} className={`self-start rounded-full border border-white/12 bg-[#171514]/78 px-4 py-3 ${className}`}>
@@ -89,6 +96,7 @@ function HamburgerButton({ onPress, className = '' }) {
   );
 }
 
+// Hook central: concentra navegación, sesión, carga de datos y avisos globales.
 function useAppData() {
   const [page, setPage] = useState('home');
   const [content, setContent] = useState(null);
@@ -107,6 +115,7 @@ function useAppData() {
 
   const showNotice = (tone, message) => setNotice({ tone, message });
 
+  // Carga la información que cualquier visitante puede ver.
   async function loadPublicData() {
     const [contentResponse, menuResponse, tableTypesResponse] = await Promise.all([
       api.getContent(),
@@ -118,6 +127,7 @@ function useAppData() {
     setTableTypes(tableTypesResponse.data);
   }
 
+  // Valida la sesión actual y usa refresh token si el access token venció.
   async function refreshSession(nextAuth = auth) {
     if (!nextAuth?.accessToken) return null;
     try {
@@ -136,6 +146,7 @@ function useAppData() {
     }
   }
 
+  // Carga reservas y, si aplica, datos administrativos.
   async function loadPrivateData(nextAuth = auth) {
     if (!nextAuth?.accessToken) {
       setReservations([]);
@@ -223,10 +234,12 @@ function useAppData() {
   };
 }
 
+// Contenedor oscuro común para bloques destacados.
 function DarkPanel({ children, className = '' }) {
   return <View className={`overflow-hidden rounded-[28px] border border-white/10 bg-[#171514]/95 ${className}`}>{children}</View>;
 }
 
+// Campo con estilo de línea usado en formularios con fondo oscuro.
 function LineField({ label, value, onChangeText, placeholder, secureTextEntry = false, multiline = false }) {
   return (
     <View className="mb-6">
@@ -249,6 +262,7 @@ function LineField({ label, value, onChangeText, placeholder, secureTextEntry = 
   );
 }
 
+// Modal que guía al usuario a iniciar sesión antes de reservar.
 function ReservePromptModal({ visible, onClose, onLogin, onRegister }) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -281,6 +295,7 @@ function ReservePromptModal({ visible, onClose, onLogin, onRegister }) {
   );
 }
 
+// Navegación principal con drawer para mantener la interfaz limpia en web/móvil.
 function Navigation({ page, setPage, isAdmin, onReservePress, drawerOpen, setDrawerOpen, hideBar = false }) {
   const navItems = isAdmin ? [...pages, { key: 'admin', label: 'Admin' }] : pages;
 
@@ -352,6 +367,7 @@ function Navigation({ page, setPage, isAdmin, onReservePress, drawerOpen, setDra
   );
 }
 
+// Landing editorial: presenta marca, propuesta y llamados a la acción.
 function HomePage({ data, setPage, onReservePress }) {
   const featuredDishes = [
     { name: 'Tartar de ciervo ahumado', price: '28', description: 'Yema curada, mostaza antigua y pan de masa madre.' },
@@ -484,6 +500,7 @@ function HomePage({ data, setPage, onReservePress }) {
   );
 }
 
+// Vista pública del menú agrupado por categoría y experiencias.
 function MenuPage({ groupedItems, experiences }) {
   return (
     <DarkPanel className="mb-6 overflow-hidden">
@@ -540,6 +557,7 @@ function MenuPage({ groupedItems, experiences }) {
   );
 }
 
+// Tarjeta seleccionable para escoger experiencia gastronómica.
 function ExperienceChoice({ selected, onPress, title, body, subtitle }) {
   return (
     <Pressable onPress={onPress} className={`rounded-[20px] border px-4 py-4 ${selected ? 'border-brand-copper bg-brand-copper/10' : 'border-white/10 bg-[#1b1817]'}`}>
@@ -550,6 +568,7 @@ function ExperienceChoice({ selected, onPress, title, body, subtitle }) {
   );
 }
 
+// Usa inputs nativos en web para fecha/hora y mantiene fallback para otros entornos.
 function DateTimeField({ label, value, onChangeText, type = 'date', min }) {
   if (Platform.OS === 'web') {
     return (
@@ -593,6 +612,7 @@ function DateTimeField({ label, value, onChangeText, type = 'date', min }) {
   );
 }
 
+// Formulario de creación/edición de reservas conectado a la API.
 function ReservePage({ user, tableTypes, experiences, onRequireAuth, onCreate, onUpdate, confirmation, editingReservation, onCancelEdit }) {
   const [form, setForm] = useState(emptyReservation);
 
@@ -692,6 +712,7 @@ function ReservePage({ user, tableTypes, experiences, onRequireAuth, onCreate, o
   );
 }
 
+// Confirmación posterior a crear o editar una reserva.
 function ReservationConfirmationPage({ reservation, onGoHome, onGoAccount }) {
   if (!reservation) return null;
 
@@ -734,6 +755,7 @@ function ReservationConfirmationPage({ reservation, onGoHome, onGoAccount }) {
   );
 }
 
+// Layout compartido para login, registro y recuperación.
 function AuthShell({ image, children }) {
   return (
     <View className="relative min-h-screen overflow-hidden bg-[#141313]">
@@ -746,6 +768,7 @@ function AuthShell({ image, children }) {
   );
 }
 
+// Administra las pantallas de acceso sin salir del flujo principal.
 function AuthPage({ onLogin, onRegister, onForgot, onReset, onOpenMenu }) {
   const [mode, setMode] = useState('login');
   const [loginForm, setLoginForm] = useState(emptyLogin);
@@ -859,6 +882,7 @@ function AuthPage({ onLogin, onRegister, onForgot, onReset, onOpenMenu }) {
   );
 }
 
+// Tarjeta resumen de reserva con acciones del usuario.
 function ReservationCard({ reservation, onCancel, onEdit }) {
   const status = normalizeStatus(reservation.status);
   const canEdit = reservation.status === 'confirmed';
@@ -890,6 +914,7 @@ function ReservationCard({ reservation, onCancel, onEdit }) {
   );
 }
 
+// Cuenta del usuario: perfil, reservas y acceso a edición/cancelación.
 function AccountPage({ auth, reservations, onLogin, onRegister, onForgot, onReset, onOpenMenu, onUpdateProfile, onCancelReservation, onEditReservation, onLogout, setPage }) {
   const [profileForm, setProfileForm] = useState({ name: auth?.user?.name || '', phone: auth?.user?.phone || '' });
 
@@ -949,6 +974,7 @@ function AccountPage({ auth, reservations, onLogin, onRegister, onForgot, onRese
   );
 }
 
+// Información de contacto y mapa embebido del restaurante.
 function ContactPage({ contact }) {
   return (
     <DarkPanel className="overflow-hidden">
@@ -971,6 +997,7 @@ function ContactPage({ contact }) {
   );
 }
 
+// Panel administrativo básico para gestionar menú y estados de reservas.
 function AdminPage({ token, menu, reservations, onRefresh, showNotice, onReservationStatusChange }) {
   const [categoryForm, setCategoryForm] = useState(emptyCategory);
   const [experienceForm, setExperienceForm] = useState(emptyExperience);
@@ -1046,6 +1073,7 @@ function AdminPage({ token, menu, reservations, onRefresh, showNotice, onReserva
   );
 }
 
+// Pie de página con accesos rápidos y refuerzo de marca.
 function Footer({ setPage, onReservePress }) {
   return (
     <View className="border-t border-white/5 bg-[#171514] px-5 py-12 md:px-12 md:py-16">
@@ -1074,6 +1102,7 @@ function Footer({ setPage, onReservePress }) {
   );
 }
 
+// Componente raíz: decide qué página mostrar y conecta eventos con useAppData.
 export function AppShell() {
   const app = useAppData();
   const [lastConfirmation, setLastConfirmation] = useState(null);
@@ -1110,6 +1139,7 @@ export function AppShell() {
     }
   }, [app.page]);
 
+  // Ejecuta acciones de API con manejo uniforme de avisos y errores.
   async function withAction(action, successMessage) {
     app.clearNotice();
     try {
@@ -1122,6 +1152,7 @@ export function AppShell() {
     }
   }
 
+  // Si no hay sesión, muestra el modal; si la hay, abre reservas.
   function handleReserveIntent() {
     if (!app.user) {
       setReservePromptOpen(true);
@@ -1131,11 +1162,13 @@ export function AppShell() {
     app.setPage('reserve');
   }
 
+  // Reutiliza el formulario de reserva para modificar una existente.
   function handleEditReservation(reservation) {
     setEditingReservation(reservation);
     app.setPage('reserve');
   }
 
+  // Autenticación: guarda tokens y carga datos privados.
   async function onLogin(form, reset) {
     const response = await withAction(() => api.login(form), 'Sesión iniciada');
     app.setAuthAndPersist(response.data);
@@ -1169,6 +1202,7 @@ export function AppShell() {
     app.setAuthAndPersist({ ...app.auth, user: response.data });
   }
 
+  // Reserva: envía datos normalizados y actualiza la confirmación.
   async function onCreateReservation(form) {
     const response = await withAction(() => api.createReservation(app.token, { ...form, guestCount: Number(form.guestCount) }), 'Reserva confirmada');
     setLastConfirmation(response.data);
@@ -1190,6 +1224,7 @@ export function AppShell() {
     await app.reloadPrivate();
   }
 
+  // Administración: cambia estados y refresca las listas.
   async function onAdminReservationStatusChange(id, status) {
     await withAction(() => api.updateReservationStatus(app.token, id, { status }), `Reserva ${normalizeStatus(status).label.toLowerCase()}`);
     await app.reloadPrivate();

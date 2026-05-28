@@ -1,5 +1,7 @@
+// URL base configurable para conectar Vercel con el backend publicado.
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:4000/api';
 
+// Normaliza respuestas exitosas y errores para que las pantallas los manejen igual.
 async function parseResponse(response) {
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -11,6 +13,7 @@ async function parseResponse(response) {
   return body;
 }
 
+// Cliente HTTP pequeño que agrega JSON y token Bearer cuando corresponde.
 export async function apiFetch(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, {
     headers: {
@@ -24,6 +27,7 @@ export async function apiFetch(path, options = {}) {
   return parseResponse(response);
 }
 
+// Catálogo de llamadas usado por las pantallas; mantiene los endpoints fuera de la UI.
 export const api = {
   getContent: () => apiFetch('/content'),
   getMenu: () => apiFetch('/menu'),

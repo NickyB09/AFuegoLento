@@ -1,3 +1,4 @@
+// Registro de Expo para que la app funcione en web y builds nativos.
 import { registerRootComponent } from 'expo';
 
 import App from './App';

@@ -1,5 +1,6 @@
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 
+// Componentes visuales reutilizables para mantener estilo consistente.
 export function Section({ title, subtitle, children, right }) {
   return (
     <View className="mb-8 rounded-[28px] border border-brand-olive/20 bg-brand-ivory px-5 py-5 md:px-7 md:py-7">
